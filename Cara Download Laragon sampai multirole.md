@@ -51,10 +51,10 @@
 11. isi
     "use App\\Models\\Role;
 
-    Role::insert(\[
-    \['name' => 'admin'],
-    \['name' => 'guru'],
-    \['name' => 'siswa'],
+    Role::insert([
+    ['name' => 'admin'],
+    ['name' => 'guru'],
+    ['name' => 'siswa'],
     ]);"
 
 12. Daftarkan di DatabaseSeeder.php "$this->call(RoleSeeder::class);"
@@ -63,16 +63,16 @@
 
     "<?php
 
-    use Illuminate\\Database\\Migrations\\Migration;
-    use Illuminate\\Database\\Schema\\Blueprint;
-    use Illuminate\\Support\\Facades\\Schema;
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
 
     return new class extends Migration
     {
     public function up(): void
     {
     Schema::table('users', function (Blueprint $table) {
-    $table->unsignedBigInteger('role\_id')->nullable(); // kolom role\_id
+    $table->unsignedBigInteger('role_id')->nullable(); // kolom role\_id
     // $table->string('role')->default('siswa'); // opsional, sebenarnya bisa dihapus
     });
     }
@@ -80,7 +80,7 @@
     public function down(): void
             {
                 Schema::table('users', function (Blueprint $table) {
-                    $table->dropColumn('role\\\_id');
+                    $table->dropColumn('role_id');
                     // $table->dropColumn('role'); // jika pakai
                 });
             }
@@ -97,12 +97,12 @@
 17. Buat Seeder User "**php artisan make:seeder UserSeeder"**
     "<?php
 
-    namespace Database\\Seeders;
+    namespace Database\Seeders;
 
-    use Illuminate\\Database\\Seeder;
-    use Illuminate\\Support\\Facades\\Hash;
-    use App\\Models\\User;
-    use App\\Models\\Role;
+    use Illuminate\Database\Seeder;
+    use Illuminate\Support\Facades\Hash;
+    use App\\Models\User;
+    use App\\Models\Role;
 
     class UserSeeder extends Seeder
     {
@@ -113,23 +113,23 @@
     'name' => 'Admin',
     'email' => 'admincontoh@gmail.com',
     'password' => Hash::make('password'),
-    'role\_id' => Role::where('name', 'admin')->first()->id,
+    'role_id' => Role::where('name', 'admin')->first()->id,
     ]);
 
        // Guru
-                User::create(\\\[
+                User::create([
                     'name' => 'Guru 1',
                     'email' => 'gurucontoh@gmail.com',
                     'password' => Hash::make('password'),
-                    'role\\\_id' => Role::where('name', 'guru')->first()->id,
+                    'role_id' => Role::where('name', 'guru')->first()->id,
                 ]);
 
                 // Siswa
-                User::create(\\\[
+                User::create([
                     'name' => 'Siswa 1',
                     'email' => 'siswacontoh@gmail.com',
                     'password' => Hash::make('password'),
-                    'role\\\_id' => Role::where('name', 'siswa')->first()->id,
+                    'role_id' => Role::where('name', 'siswa')->first()->id,
                 ]);
             }
 
@@ -137,7 +137,7 @@
 
 18. daftarkan di database seeder
 
-    "$this->call(\[
+    "$this->call([
     RoleSeeder::class,
     UserSeeder::class,
     ]);"
@@ -147,36 +147,36 @@
 
     "<?php
 
-    namespace App\\Http\\Middleware;
+namespace App\Http\Middleware;
 
-    use Closure;
-    use Illuminate\\Http\\Request;
-    use Symfony\\Component\\HttpFoundation\\Response;
-    use Illuminate\\Support\\Facades\\Auth;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
-    class CheckRole
+
+class CheckRole
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle($request, Closure $next, $role)
     {
-    /\*\*
-    \* Handle an incoming request.
-    \*
-    \* @param  \\Closure(\\Illuminate\\Http\\Request): (\\Symfony\\Component\\HttpFoundatio\\Response)  $next
-    \*/
-    public function handle(Request $request, Closure $next, string $role): Response
-    {
-    if (!Auth::check() || Auth::user()->role->name !== $role) {
-    abort(403, 'Unauthorized');
+        if (!Auth::check() || Auth::user()->role->name !== $role) {
+            abort(403, 'Unauthorized');
+        }
+
+        return $next($request);
     }
-
-       return $next($request);
-            }
-
-    }"
+}"
 
 21. Daftarkan middleware di bootstrap/app.php:
 
     "->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias(\[
-    'checkrole' => \\App\\Http\\Middleware\\CheckRole::class,
+    $middleware->alias([
+    'checkrole' => \App\Http\Middleware\CheckRole::class,
     ]);
     })"
 
@@ -192,16 +192,16 @@
 3. buat folder "resources/views/admin/dashboard.blade.php"
 4. Routes web:
 
-   "use App\\Http\\Controllers\\AdminController;
-   use App\\Http\\Controllers\\GuruController;
-   use App\\Http\\Controllers\\SiswaController;
-   use Illuminate\\Support\\Facades\\Auth;
+   "use App\Http\Controllers\AdminController;
+   use App\Http\Controllers\GuruController;
+   use App\Http\Controllers\SiswaController;
+   use Illuminate\Support\Facades\Auth;
 
    
 
-   Route::get('/admin/dashboard', \[Admin\\DashboardController::class, 'index'])->middleware(\['auth', 'checkrole:admin'])->name('admin.dashboard');
-   Route::get('/guru/dashboard', \[Guru\\DashboardController::class, 'index'])->middleware(\['auth', 'checkrole:guru'])->name('guru.dashboard');
-   Route::get('/siswa/dashboard', \[Siswa\\DashboardController::class, 'index'])->middleware(\['auth', 'checkrole:siswa'])->name('siswa.dashboard');
+   Route::get('/admin/dashboard', [Admin\DashboardController::class, 'index'])->middleware(['auth', 'checkrole:admin'])->name('admin.dashboard');
+   Route::get('/guru/dashboard', [Guru\DashboardController::class, 'index'])->middleware(['auth', 'checkrole:guru'])->name('guru.dashboard');
+   Route::get('/siswa/dashboard', [Siswa\DashboardController::class, 'index'])->middleware(['auth', 'checkrole:siswa'])->name('siswa.dashboard');
 
    Route::get('/home', function () {
    $role = Auth::user()->role->name;
@@ -210,7 +210,7 @@
    'guru' => redirect()->route('guru.dashboard'),
    default => redirect()->route('siswa.dashboard'),
    };
-   })->middleware(\['auth'])->name('dashboard');
+   })->middleware(['auth'])->name('dashboard');
 
 5. php artisan serve
 
@@ -232,3 +232,4 @@
 7. extension=sqlite3) tidak di komentari, setelah itu restart laragon
 8. jika ada muncul error seperti "**Database file at path \[/full/path/to/database.sqlite] does not exist. Ensure this is an absolute path to the database. (Connection: sqlite, SQL: select \* from "sessions" where "id" = E8EzNFNqU7jbWPEvvdZY0X5uVQSmgFyes73wM3Jl limit 1)**", coba code "type nul > database\\database.sqlite", pada bagian "database.sqlite" boleh di ganti nama lain, setelah itu, coba code " php artisan migrate", setelah itu coba "php artisan serve"
 9. Laravel siap di gunakan
+
