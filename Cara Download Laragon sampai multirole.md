@@ -88,7 +88,7 @@
     };"
 
 15. Jalankan migrate: "php artisan migrate:fresh --seed"
-16. Update model User:
+16. Update model User: tambahkan 'role_id',
 
     "public function role() {
     return $this->belongsTo(Role::class);
@@ -232,4 +232,5 @@ class CheckRole
 7. extension=sqlite3) tidak di komentari, setelah itu restart laragon
 8. jika ada muncul error seperti "**Database file at path \[/full/path/to/database.sqlite] does not exist. Ensure this is an absolute path to the database. (Connection: sqlite, SQL: select \* from "sessions" where "id" = E8EzNFNqU7jbWPEvvdZY0X5uVQSmgFyes73wM3Jl limit 1)**", coba code "type nul > database\\database.sqlite", pada bagian "database.sqlite" boleh di ganti nama lain, setelah itu, coba code " php artisan migrate", setelah itu coba "php artisan serve"
 9. Laravel siap di gunakan
+
 
