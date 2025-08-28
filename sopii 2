@@ -1,0 +1,24 @@
+git clone https://github.com/mauricechesteraguda/tutorial-laravel-12-template-with-user-guide.git
+cd tutorial-laravel-12-template-with-user-guide
+
+composer install
+npm install && npm run build
+
+cp .env.example .env
+php artisan key:generate
+
+GANTI LOGIN DATABASE di .env
+
+php artisan migrate --seed
+
+php artisan view:clear
+php artisan config:clear
+php artisan cache:clear
+
+php artisan serve
+
+Email: admin@example.com
+Password: password123
+
+php artisan make:seeder AdminSeeder
+php artisan db:seed --class=AdminSeeder
